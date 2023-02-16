@@ -1,0 +1,169 @@
+<!-- more cube -->
+<!-- 
+	궤도에 박스 여러개 배치
+	- 오브젝트 복사 & 원 모양 배치
+	- 마우스 휠로 오브젝트간 간격 조정
+	- 드래그로 오브젝트 회전
+ -->
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>My first three.js app</title>
+		<style>
+			body { margin: 0; }
+			canvas { display: block; }
+		</style>
+	</head>
+	<body>
+		<script src="js/three.js"></script>
+		<script>
+			const scene = new THREE.Scene();
+			const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+
+			const renderer = new THREE.WebGLRenderer();
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.body.appendChild( renderer.domElement );
+
+			// 카메라 위치 및 앵글 조정
+			camera.position.z = 5;
+			camera.position.x = 5;
+			camera.position.y = 5;
+			camera.lookAt(0, 0, 0);
+
+
+			// cube 생성
+			function createCube(x, y, z, color) {
+				const geometry = new THREE.BoxGeometry( 1, 1, 1 );
+				const material = new THREE.MeshBasicMaterial( { color: color } );
+				const cube = new THREE.Mesh( geometry, material );
+				cube.position.x = x;
+				cube.position.y = y;
+				cube.position.z = z;
+				scene.add( cube );
+				return cube;
+			}
+			
+			// cube들을 원형으로 배치
+			const cube_pool = [];
+			const cube_count = 10;
+			var cube_radius = 3;
+			for (let i = 0; i < cube_count; i++) {
+				const cube = createCube(0, 0, 0, 0x00ff00);
+				// cube.rotation.x = Math.random() * Math.PI;
+				// cube.rotation.y = Math.random() * Math.PI;
+				// cube.rotation.z = Math.random() * Math.PI;
+				cube_pool.push(cube);
+			}
+			
+			// cube들을 원형으로 배치
+			function setCubePositionCircle() {
+				const angle = (Math.PI * 2) / cube_count;
+				for (let i = 0; i < cube_count; i++) {
+					const cube = cube_pool[i];
+					cube.position.x = Math.cos(angle * i) * cube_radius;
+					cube.position.z = Math.sin(angle * i) * cube_radius;
+				}
+			}
+
+			// cube들을 직선으로 배치
+			function setCubePositionLine() {
+				for (let i = 0; i < cube_count; i++) {
+					const cube = cube_pool[i];
+					cube.position.x = i * 2;
+					cube.position.z = 0;
+				}
+			}
+
+
+			setCubePositionCircle();
+
+			function animate() {
+				requestAnimationFrame( animate );
+				renderer.render( scene, camera );
+			};
+			animate();
+
+
+			// 마우스 휠로 object 간격 조정
+			function onDocumentMouseWheel(event) {
+				// cube pool 간격 조정
+				// cube_radius = 2 ~ 3
+				if (event.wheelDelta > 0 || event.detail < 0) {
+					// scroll up
+					if(cube_radius > 3) cube_radius -=  0.3;
+				}
+				else {
+					// scroll down
+					if(cube_radius < 10)	cube_radius +=  0.3;
+				}
+				setCubePositionCircle();
+			}
+			// 스크롤 내리기 이벤트
+			document.addEventListener('wheel', onDocumentMouseWheel, false);
+
+			// 드래그로 오브젝트 회전
+			var mouseDown = false;
+			var mouseX = 0;
+			var mouseY = 0;
+			var mouseDownX = 0;
+			var mouseDownY = 0;
+			function onDocumentMouseDown(event) {
+				event.preventDefault();
+				mouseDown = true;
+				mouseDownX = event.clientX;
+				mouseDownY = event.clientY;
+			}
+			function onDocumentMouseMove(event) {
+				event.preventDefault();
+				mouseX = event.clientX;
+				mouseY = event.clientY;
+			}
+			function onDocumentMouseUp(event) {
+				event.preventDefault();
+				mouseDown = false;
+			}
+			function onDocumentMouseOut(event) {
+				event.preventDefault();
+				mouseDown = false;
+			}
+			document.addEventListener('mousedown', onDocumentMouseDown, false);
+			document.addEventListener('mousemove', onDocumentMouseMove, false);
+			document.addEventListener('mouseup', onDocumentMouseUp, false);
+			document.addEventListener('mouseout', onDocumentMouseOut, false);
+
+			function onDocumentTouchStart(event) {
+				if (event.touches.length == 1) {
+					event.preventDefault();
+					mouseDownX = event.touches[ 0 ].pageX;
+					mouseDownY = event.touches[ 0 ].pageY;
+				}
+			}
+			function onDocumentTouchMove(event) {
+				if (event.touches.length == 1) {
+					event.preventDefault();
+					mouseX = event.touches[ 0 ].pageX;
+					mouseY = event.touches[ 0 ].pageY;
+				}
+			}
+			document.addEventListener('touchstart', onDocumentTouchStart, false);
+			document.addEventListener('touchmove', onDocumentTouchMove, false);
+
+			function animate() {
+				requestAnimationFrame( animate );
+				if (mouseDown) {
+					var diffX = mouseX - mouseDownX;
+					var diffY = mouseY - mouseDownY;
+					camera.position.x += diffX / 100;
+					camera.position.y -= diffY / 100;
+					camera.lookAt(0, 0, 0);
+					mouseDownX = mouseX;
+					mouseDownY = mouseY;
+				}
+				renderer.render( scene, camera );
+			}
+			animate();
+
+		</script>
+	</body>
+</html>
