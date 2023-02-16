@@ -1,0 +1,139 @@
+<!-- 
+	2. 궤도 따라 object 움직이기
+ -->
+ <!DOCTYPE html>
+ <html>
+	 <head>
+		 <meta charset="utf-8">
+		 <title>My first three.js app</title>
+		 <style>
+			 body { margin: 0; }
+			 canvas { display: block; }
+		 </style>
+	 </head>
+	 <body>
+		 <script src="js/three.js"></script>
+		 <script>
+			 // setting
+			 const scene = new THREE.Scene();
+			 const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+ 
+			 const renderer = new THREE.WebGLRenderer();
+			 renderer.setSize( window.innerWidth, window.innerHeight );
+			 document.body.appendChild( renderer.domElement );
+ 
+			 // 카메라 위치 및 앵글 조정
+			 camera.position.z = 5;
+			 camera.position.x = 5;
+			 camera.position.y = 5;
+			 camera.lookAt(0, 0, 0);
+
+			// cube들을 원형으로 배치
+			const cube_pool = [];
+			const cube_count = 10;
+			var cube_radius = 3;
+
+			// 궤도 풀 : 큐브 그룹, 궤도 모양, 각도,  회전 속도
+			const orbit_pool = [
+				{
+					"cube_pool" : cube_pool,
+					"orbit_shape" : "circle",
+					"angle" : 0,
+					"speed" : 0.01,
+				},
+			];
+			 
+			 // start
+			 for (let i = 0; i < cube_count; i++) {
+				 const cube = createObject('cube', 0, 0, 0, 0xd18063);
+				 cube.lookAt(0, 0, 0);
+				 cube_pool.push(cube);
+			 }
+			 setCubePositionCircle();
+ 
+ 
+			 // functions
+			 // object 생성
+			 function createObject(type, x=0, y=0, z=0, color=0xd18063) {
+				 if (type == "cube") {
+					 return createCube(x, y, z, color);
+				 }else if(type == "sphere") {
+					 return createSphere(x, y, z, color);
+				 }
+			 }
+			//  sphere 생성
+			function createSphere(x, y, z, color) {
+				const geometry = new THREE.SphereGeometry( 1, 32, 32 );
+				const material = new THREE.MeshBasicMaterial( {color: color} );
+				const sphere = new THREE.Mesh( geometry, material );
+				sphere.position.x = x;
+				sphere.position.y = y;
+				sphere.position.z = z;
+				scene.add( sphere );
+				return sphere;
+			}
+			// cube 생성
+			function createCube(x, y, z, color) {
+				const geometry = new THREE.BoxGeometry( 1, 1, 1 );
+				const material = new THREE.MeshBasicMaterial( { color: color } );
+				const cube = new THREE.Mesh( geometry, material );
+				cube.position.x = x;
+				cube.position.y = y;
+				cube.position.z = z;
+				scene.add( cube );
+				return cube;
+			}
+
+
+			 
+			// cube들을 원형으로 배치
+			function setCubePositionCircle() {
+				const angle = (Math.PI * 2) / cube_count;
+				for (let i = 0; i < cube_count; i++) {
+					const cube = cube_pool[i];
+					cube.position.x = Math.cos(angle * i) * cube_radius;
+					cube.position.z = Math.sin(angle * i) * cube_radius;
+				}
+			}
+
+			// cube들을 직선으로 배치
+			function setCubePositionLine() {
+				for (let i = 0; i < cube_count; i++) {
+					const cube = cube_pool[i];
+					cube.position.x = i * 2;
+					cube.position.z = 0;
+				}
+			}
+			// 궤도 따라 움직이기
+			// 타원궤도 : x^2 / a^2 + y^2 / b^2 = 1
+			 function animate() {
+				 requestAnimationFrame( animate );
+				//  궤도풀 for
+				for (let i = 0; i < orbit_pool.length; i++) {
+					const orbit = orbit_pool[i];
+					const cube_pool = orbit.cube_pool;
+					const orbit_shape = orbit.orbit_shape;
+					const angle = orbit.angle;
+					const speed = orbit.speed;
+					// cube_pool for
+					for (let j = 0; j < cube_pool.length; j++) {
+						const cube = cube_pool[j];
+						// 궤도 모양에 따라 움직이기
+						if (orbit_shape == "circle") {
+							cube.position.x = Math.cos(angle + (Math.PI * 2) / cube_pool.length * j) * cube_radius;
+							cube.position.z = Math.sin(angle + (Math.PI * 2) / cube_pool.length * j) * cube_radius;
+						} else if (orbit_shape == "ellipse") {
+							cube.position.x = Math.cos(angle + (Math.PI * 2) / cube_pool.length * j) * cube_radius;
+							cube.position.z = Math.sin(angle + (Math.PI * 2) / cube_pool.length * j) * cube_radius * 0.5;
+						}
+						cube.lookAt(0, 0, 0);
+					}
+					orbit.angle += speed;
+				 }
+				 renderer.render( scene, camera );
+			 }
+			 animate();
+ 
+		 </script>
+	 </body>
+ </html>
