@@ -106,8 +106,7 @@
 			}
 			// 궤도 따라 움직이기
 			// 타원궤도 : x^2 / a^2 + y^2 / b^2 = 1
-			 function animate() {
-				 requestAnimationFrame( animate );
+			function setCubePositionEllipse() {
 				//  궤도풀 for
 				for (let i = 0; i < orbit_pool.length; i++) {
 					const orbit = orbit_pool[i];
@@ -129,11 +128,16 @@
 						cube.lookAt(0, 0, 0);
 					}
 					orbit.angle += speed;
-				 }
-				 renderer.render( scene, camera );
-			 }
-			 animate();
+				}
+			}
+
+			function animate() {
+				requestAnimationFrame( animate );
+				setCubePositionEllipse()
+				renderer.render( scene, camera );
+			}
+			animate();
  
-		 </script>
-	 </body>
- </html>
+		</script>
+	</body>
+</html>
