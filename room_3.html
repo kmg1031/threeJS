@@ -2,7 +2,8 @@
 	3. object 회전하기
         - 원 오브젝트
         - 원 위에 경계선 그리기
-        - 원 자동 회전 + 수도 회전
+        - 원 자동 회전 
+		- 궤도 위/아래 수동 회전 ( 중심 기준 )
 -->
 <!DOCTYPE html>
 <html>
@@ -48,7 +49,7 @@
 					"speed" : 0.01,
 				},
 			];
-			 
+			
             // start
             for (let i = 0; i < cube_count; i++) {
                 const cube = createObject('cube', 0, 0, 0, 0xd18063);
@@ -107,19 +108,29 @@
 				}
 			}
 
-
-
-            
-
-
-
-
-
-
-
             // animation
             function animate() {
                 requestAnimationFrame( animate );
+
+				// 궤도 회전
+				for (let i = 0; i < orbit_pool.length; i++) {
+					const orbit = orbit_pool[i];
+					const cube_pool = orbit.cube_pool;
+					const orbit_shape = orbit.orbit_shape;
+					const angle = orbit.angle;
+					const speed = orbit.speed;
+					orbit.angle += speed;
+					for (let j = 0; j < cube_pool.length; j++) {
+						const cube = cube_pool[j];
+						if (orbit_shape == "circle") {
+							cube.position.x = Math.cos(angle + (Math.PI * 2) / cube_count * j) * cube_radius;
+							cube.position.z = Math.sin(angle + (Math.PI * 2) / cube_count * j) * cube_radius;
+						}else if (orbit_shape == "line") {
+							cube.position.x = j * 2 + angle;
+							cube.position.z = 0;
+						}
+					}
+				}
                 
                 renderer.render( scene, camera );
             }
