@@ -1,8 +1,9 @@
 <!-- 
 	3. 태양계 구현
 	-> 위성까지 할꺼냐 O
-	-> 오브젝트 구형
+	-> 오브젝트 구현
 	-> 자식으로 포함시키기
+		-> parent - child 구현
 -->
 <!DOCTYPE html>
 <html>
@@ -16,6 +17,7 @@
     </head>
     <body>
         <script src="js/three.js"></script>
+        <script src="js/config/room_4.js"></script>
         <script>
 			// setting
 			const scene = new THREE.Scene();
@@ -26,9 +28,9 @@
 			document.body.appendChild( renderer.domElement );
 
 			// 카메라 위치 및 앵글 조정
-			camera.position.z = 5;
-			camera.position.x = 5;
-			camera.position.y = 5;
+			camera.position.z = 100;
+			camera.position.x = 100;
+			camera.position.y = 100;
 			camera.lookAt(0, 0, 0);
 
 		   // cube들을 원형으로 배치
